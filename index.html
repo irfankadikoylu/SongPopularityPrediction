@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <script src="js/d3.min.js"></script>
+    <script src="js/topojson.min.js"></script>
+    <script src="js/datamaps.world.min.js"></script>
+    <script type="text/javascript">
+    // Read the bloody csv and dump the fuck out of it to this freaking variable "text".
+    var text
+    var globalyear
+    var globalstars
+    function readTextFile(file)
+    {
+        var rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file, false);
+        rawFile.onreadystatechange = function ()
+        {
+            if(rawFile.readyState === 4)
+            {
+                if(rawFile.status === 200 || rawFile.status == 0)
+                {
+                    var allText = rawFile.responseText;
+                    text = allText;
+                }
+            }
+        }
+        rawFile.send(null);
+    }
+    // Since I could not find a way to return the fucking "text" variable as the output of a function I do
+    // it in this stupid way:
+    function passText()
+    {
+    return text;
+    }
+    // This reads lines of "text" into an array. That is, every element of the array is a line of it.
+
+    function processData(allText) 
+    {
+        var allTextLines = allText.split(/\r\n|\n/);
+        var headers = allTextLines[0].split(',');
+        var lines = [];
+
+        for (var i=1; i<allTextLines.length; i++) 
+        {
+            var data = allTextLines[i].split(',');
+            if (data.length == headers.length) 
+            {
+
+                var tarr = [];
+                for (var j=0; j<headers.length; j++) 
+                {
+                    tarr.push(data[j]);
+                }
+                lines.push(tarr);
+            }
+        }
+    return lines;
+    }
+    // This takes the necessary data from lines and assigns it to the required "keys" by the map drawer function.
+ 
+    function FinalProcess(data, year) 
+    {
+        var bubbless = [];
+        for (var i=0; i<data.length; i++) 
+        {
+            if (data[i][5] == year)
+            {
+                temp = {"name": data[i][3] + "-" + data[i][4], "latitude": data[i][1], "longitude": data[i][2], "radius": 40, "StarRating": data[i][6]};
+                bubbless.push(temp);
+            }
+        }
+    return bubbless;
+    }
+
+    // This is just a wrapper function. Since I havent written the code smartly, such things have become necessary.
+    function Draw(year)
+    {
+        readTextFile("Sample.csv");
+        textt = passText();
+        data = processData(textt);
+        temp = FinalProcess(data, year)
+        TheMap.bubbles(temp, {popupTemplate: function (geo, data) 
+    {
+    return ['<div class="hoverinfo">' +  data.name,'<br/>StarRating: ' + data.StarRating,'</div>'].join('');
+    }});
+    }
+      
+    function outputUpdateYear(num) 
+    {
+        document.querySelector('#outputyear').value = num;
+        globalyear = num
+        Draw(globalyear);
+    }
+
+    function outputUpdateStars(num) 
+    {
+        document.querySelector('#outputstars').value = num;
+        globalstars = Number(num) + 1990;
+        Draw(globalstars);
+    }
+    </script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Song Popularity Prediction</title>
+<meta name="description" content="">
+<meta name="author" content="">
+
+<!-- Favicons
+    ================================================== -->
+<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="72x72" href="img/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="114x114" href="img/apple-touch-icon-114x114.png">
+
+<!-- Bootstrap -->
+<link rel="stylesheet" type="text/css"  href="css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="fonts/font-awesome/css/font-awesome.css">
+
+<!-- Stylesheet
+    ================================================== -->
+<link rel="stylesheet" type="text/css"  href="css/style.css">
+<link rel="stylesheet" type="text/css" href="css/nivo-lightbox/nivo-lightbox.css">
+<link rel="stylesheet" type="text/css" href="css/nivo-lightbox/default.css">
+<link href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Dancing+Script:400,700" rel="stylesheet">
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+ 
+</head>
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+<!-- Navigation
+    ==========================================-->
+<nav id="menu" class="navbar navbar-default navbar-fixed-top">
+  <div class="container"> 
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+      <a class="navbar-brand page-scroll" href="#page-top">Song Popularity Prediction</a> </div>
+    
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#about" class="page-scroll">About</a></li>
+        <li><a href="#restaurant-menu" class="page-scroll">Menu</a></li>
+        <li><a href="#portfolio" class="page-scroll">Gallery</a></li>
+        <li><a href="#bubblemap" class="page-scroll">The Map</a></li>
+      </ul>
+    </div>
+    <!-- /.navbar-collapse --> 
+  </div>
+</nav>
+<!-- Header -->
+<header id="header">
+  <div class="intro">
+    <div class="overlay">
+      <div class="container">
+        <div class="row">
+          <div class="intro-text">
+            <h1>Song Popularity Prediction</h1>
+            <p>Predicting song popularity from its metadata</p>
+            <a href="#about" class="btn btn-custom btn-lg page-scroll">Get Started</a> </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<!-- About Section -->
+<div id="about">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12 col-md-6 ">
+        <div class="about-img"><img src="img/about.jpg" class="img-responsive" alt=""></div>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <div class="about-text">
+          <h2>Million Song Dataset</h2>
+          <hr>
+          <p>This website demonstrates the results of my capstone project for the Data Incubator. In my analysis I used the publicly available <a href="https://labrosa.ee.columbia.edu/millionsong/">Million Song Dataset</a>. The objective of the project is to predict the popularity of a song based on the other data in MSD for that song.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Restaurant Menu Section -->
+<div id="restaurant-menu">
+  <div class="section-title text-center center">
+    <div class="overlay">
+      <h2>Menu</h2>
+      <hr>
+
+
+
+
+
+
+
+  
+
+
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12 col-sm-6">
+        <div class="menu-section">
+          <h2 class="menu-section-title">Breakfast & Starters</h2>
+          <hr>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $35 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <div class="menu-section">
+          <h2 class="menu-section-title">Main Course</h2>
+          <hr>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $45 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-6">
+        <div class="menu-section">
+          <h2 class="menu-section-title">Dinner</h2>
+          <hr>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $45 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $350 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam.. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <div class="menu-section">
+          <h2 class="menu-section-title">Coffee & Drinks</h2>
+          <hr>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $35 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-name"> Delicious Dish </div>
+            <div class="menu-item-price"> $30 </div>
+            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Portfolio Section -->
+<div id="portfolio">
+  <div class="section-title text-center center">
+    <div class="overlay">
+      <h2>Gallery</h2>
+      <hr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit duis sed.</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="categories">
+        <ul class="cat">
+          <li>
+            <ol class="type">
+              <li><a href="#" data-filter="*" class="active">All</a></li>
+              <li><a href="#" data-filter=".breakfast">Breakfast</a></li>
+              <li><a href="#" data-filter=".lunch">Lunch</a></li>
+              <li><a href="#" data-filter=".dinner">Dinner</a></li>
+            </ol>
+          </li>
+        </ul>
+        <div class="clearfix"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="portfolio-items">
+        <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/01-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/01-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 dinner">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/02-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/02-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/03-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/03-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/04-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/04-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 dinner">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/05-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/05-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 lunch">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/06-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/06-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 lunch">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/07-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/07-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/08-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/08-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 dinner">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/09-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/09-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 lunch">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/10-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/10-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 lunch">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/11-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/11-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
+          <div class="portfolio-item">
+            <div class="hover-bg"> <a href="img/portfolio/12-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
+              <div class="hover-text">
+                <h4>Dish Name</h4>
+              </div>
+              <img src="img/portfolio/12-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Team Section -->
+
+
+<div id="bubblemap" style="position: relative; width: 90%; height: 1000px;"></div>
+<script>
+var TheMap = new Datamap(
+{
+    element: document.getElementById('bubblemap'),
+    scope: 'world',
+    geographyConfig: {popupOnHover: false, highlightOnHover: false},
+    fills: {defaultFill: '#A4A4A4'},
+});
+Draw(1996);
+
+
+
+</script>
+
+<form>
+Year: 
+  <output for=value id="outputyear">1980</output>
+  <input type="range" id="value" value="1980" step="1" min="1980" max="2000" oninput="outputUpdateYear(value)">
+
+</form>
+
+
+<form>
+Stars: 
+  <output for=value id="outputstars">1</output>
+  <input type="range" id="value" value="1" step="1" min="1" max="5" oninput="outputUpdateStars(value)">
+
+</form>
+
+
+<script type="text/javascript" src="js/jquery.1.11.1.js"></script> 
+<script type="text/javascript" src="js/bootstrap.js"></script> 
+<script type="text/javascript" src="js/SmoothScroll.js"></script> 
+<script type="text/javascript" src="js/nivo-lightbox.js"></script> 
+<script type="text/javascript" src="js/jquery.isotope.js"></script> 
+<script type="text/javascript" src="js/jqBootstrapValidation.js"></script> 
+<script type="text/javascript" src="js/contact_me.js"></script> 
+<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
