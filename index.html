@@ -7,9 +7,9 @@
     <script src="js/datamaps.world.min.js"></script>
     <script type="text/javascript">
     // Read the bloody csv and dump the fuck out of it to this freaking variable "text".
-    var text
-    var globalyear
-    var globalstars
+    var text;
+    var globalyear = 2010;
+    var globalstars = 3;
     function readTextFile(file)
     {
         var rawFile = new XMLHttpRequest();
@@ -59,14 +59,14 @@
     }
     // This takes the necessary data from lines and assigns it to the required "keys" by the map drawer function.
  
-    function FinalProcess(data, year) 
+    function FinalProcess(data, year, stars) 
     {
         var bubbless = [];
         for (var i=0; i<data.length; i++) 
         {
-            if (data[i][5] == year)
+            if (data[i][2] == year && data[i][5] == stars)
             {
-                temp = {"name": data[i][3] + "-" + data[i][4], "latitude": data[i][1], "longitude": data[i][2], "radius": 40, "StarRating": data[i][6]};
+                temp = {"name": data[i][0] + "-" + data[i][1], "latitude": data[i][3], "longitude": data[i][4], "radius": 10, "PredStarRating": data[i][6], fillKey: "bubble" };
                 bubbless.push(temp);
             }
         }
@@ -74,32 +74,54 @@
     }
 
     // This is just a wrapper function. Since I havent written the code smartly, such things have become necessary.
-    function Draw(year)
+    function Draw(year, stars)
     {
-        readTextFile("Sample.csv");
+        readTextFile("WebApp.csv");
         textt = passText();
         data = processData(textt);
-        temp = FinalProcess(data, year)
+        temp = FinalProcess(data, year, stars)
         TheMap.bubbles(temp, {popupTemplate: function (geo, data) 
     {
-    return ['<div class="hoverinfo">' +  data.name,'<br/>StarRating: ' + data.StarRating,'</div>'].join('');
+    return ['<div class="hoverinfo">' +  data.name,'<br/>Predicted Stars: ' + data.PredStarRating,'</div>'].join('');
     }});
     }
       
-    function outputUpdateYear(num) 
+    function outputUpdateYear(num)
     {
-        document.querySelector('#outputyear').value = num;
-        globalyear = num
-        Draw(globalyear);
+        document.querySelector('#outputyear').value ='Year: ' + num;
+        globalyear = num;
+        Draw(globalyear, globalstars);
     }
 
     function outputUpdateStars(num) 
     {
-        document.querySelector('#outputstars').value = num;
-        globalstars = Number(num) + 1990;
-        Draw(globalstars);
+        document.querySelector('#outputstars').value = 'Stars: ' + num;
+        globalstars = num;
+        Draw(globalyear, globalstars);
     }
     </script>
+
+    <style type="text/css">
+    .button-container form,
+    .button-container form div {
+    display: inline;
+    }
+
+    .button-container button {
+    display: inline;
+    vertical-align: middle;
+    }
+    #page-top {
+    background-color: #b2c2bf ;
+    }
+
+    #stars {
+    margin-left: 10px;
+    }
+
+
+    </style>
+
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -135,7 +157,7 @@
     <![endif]-->
  
 </head>
-<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top" style="margin:0">
 <!-- Navigation
     ==========================================-->
 <nav id="menu" class="navbar navbar-default navbar-fixed-top">
@@ -149,9 +171,8 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav navbar-right">
         <li><a href="#about" class="page-scroll">About</a></li>
-        <li><a href="#restaurant-menu" class="page-scroll">Menu</a></li>
-        <li><a href="#portfolio" class="page-scroll">Gallery</a></li>
-        <li><a href="#bubblemap" class="page-scroll">The Map</a></li>
+        <li><a href="#restaurant-menu" class="page-scroll">Analysis</a></li>
+        <li><a href="#thesongmap" class="page-scroll">The Song Map</a></li>
       </ul>
     </div>
     <!-- /.navbar-collapse --> 
@@ -177,13 +198,15 @@
   <div class="container">
     <div class="row">
       <div class="col-xs-12 col-md-6 ">
-        <div class="about-img"><img src="img/about.jpg" class="img-responsive" alt=""></div>
+        <div><img src="img/about.jpg" class="img-responsive" alt=""><br>
+        <img src="img/about2.jpg" class="img-responsive" alt="">
+        </div>
       </div>
+
       <div class="col-xs-12 col-md-6">
         <div class="about-text">
           <h2>Million Song Dataset</h2>
-          <hr>
-          <p>This website demonstrates the results of my capstone project for the Data Incubator. In my analysis I used the publicly available <a href="https://labrosa.ee.columbia.edu/millionsong/">Million Song Dataset</a>. The objective of the project is to predict the popularity of a song based on the other data in MSD for that song.</p>
+          <p><font size="5" color=" #566464"> This website demonstrates the results of my capstone project for the Data Incubator. In my analysis I used the publicly available <a href="https://labrosa.ee.columbia.edu/millionsong/">Million Song Dataset</a>. The objective of the project is to predict the popularity of a song based on the other data in MSD for that song. </font></p>
         </div>
       </div>
     </div>
@@ -193,317 +216,89 @@
 <div id="restaurant-menu">
   <div class="section-title text-center center">
     <div class="overlay">
-      <h2>Menu</h2>
-      <hr>
+<!--       <h2 style="color: #d82c27 ;">Analysis</h2> -->
+      <p><b>Below are the plots of the probability distributions of star ratings with respect to different features.
+      <br> The distribution of higher star ratings tend to shift to the right, which indicates a correlation with that feature. <br> Some features (Tempo, Duration) show no correlation at all.</b> </p>
 
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<div class="w3-content w3-display-container">
+  <img class="mySlides" src="1.png" style="width:100%;height:100%;">
+  <img class="mySlides" src="2.png" style="width:100%;height:100%;">
+  <img class="mySlides" src="3.png" style="width:100%;height:100%;">
+  <img class="mySlides" src="4.png" style="width:100%;height:100%;">
+  <img class="mySlides" src="5.png" style="width:100%;height:100%;">
+  <img class="mySlides" src="6.png" style="width:100%;height:100%;">
+  <button class="w3-button w3-black w3-display-left" onclick="plusDivs(-1)">&#10094;</button>
+  <button class="w3-button w3-black w3-display-right" onclick="plusDivs(1)">&#10095;</button>
+</div>
 
+<script>
+  var slideIndex = 1;
+  showDivs(slideIndex);
 
+  function plusDivs(n) 
+  {
+  showDivs(slideIndex += n);
+  }
 
-
-
-
-  
-
-
-    </div>
-  </div>
-  <div class="container">
-    <div class="row">
-      <div class="col-xs-12 col-sm-6">
-        <div class="menu-section">
-          <h2 class="menu-section-title">Breakfast & Starters</h2>
-          <hr>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $35 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xs-12 col-sm-6">
-        <div class="menu-section">
-          <h2 class="menu-section-title">Main Course</h2>
-          <hr>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $45 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-xs-12 col-sm-6">
-        <div class="menu-section">
-          <h2 class="menu-section-title">Dinner</h2>
-          <hr>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $45 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $350 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam.. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xs-12 col-sm-6">
-        <div class="menu-section">
-          <h2 class="menu-section-title">Coffee & Drinks</h2>
-          <hr>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $35 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-          <div class="menu-item">
-            <div class="menu-item-name"> Delicious Dish </div>
-            <div class="menu-item-price"> $30 </div>
-            <div class="menu-item-description"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, duis sed dapibus leo nec ornare diam. </div>
-          </div>
-        </div>
-      </div>
+  function showDivs(n) 
+  {
+  var i;
+  var x = document.getElementsByClassName("mySlides");
+  if (n > x.length) {slideIndex = 1}    
+  if (n < 1) {slideIndex = x.length}
+  for (i = 0; i < x.length; i++) 
+  {
+  x[i].style.display = "none";  
+  }
+  x[slideIndex-1].style.display = "block";  
+  }
+</script>
     </div>
   </div>
 </div>
-<!-- Portfolio Section -->
-<div id="portfolio">
-  <div class="section-title text-center center">
-    <div class="overlay">
-      <h2>Gallery</h2>
-      <hr>
 
 
+<!-- Song Map Section -->
 
-
-
-
-
-
-
-
-
-
-
-
-
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit duis sed.</p>
-    </div>
-  </div>
-  <div class="container">
-    <div class="row">
-      <div class="categories">
-        <ul class="cat">
-          <li>
-            <ol class="type">
-              <li><a href="#" data-filter="*" class="active">All</a></li>
-              <li><a href="#" data-filter=".breakfast">Breakfast</a></li>
-              <li><a href="#" data-filter=".lunch">Lunch</a></li>
-              <li><a href="#" data-filter=".dinner">Dinner</a></li>
-            </ol>
-          </li>
-        </ul>
-        <div class="clearfix"></div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="portfolio-items">
-        <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/01-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/01-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 dinner">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/02-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/02-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/03-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/03-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/04-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/04-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 dinner">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/05-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/05-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 lunch">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/06-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/06-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 lunch">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/07-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/07-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/08-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/08-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 dinner">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/09-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/09-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 lunch">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/10-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/10-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 lunch">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/11-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/11-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-4 col-lg-4 breakfast">
-          <div class="portfolio-item">
-            <div class="hover-bg"> <a href="img/portfolio/12-large.jpg" title="Dish Name" data-lightbox-gallery="gallery1">
-              <div class="hover-text">
-                <h4>Dish Name</h4>
-              </div>
-              <img src="img/portfolio/12-small.jpg" class="img-responsive" alt="Project Title"> </a> </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<div id="thesongmap" align="center" style="position: relative; ">
+    <b><br><br><font size="5" color=" #566464  "> Using a random forest classifier, I built a model that predicts the star rating with 65% accuracy. <br> Choose the year and the star rating with the sliders and hover above the song bubbles to see the predictions of the model. </font></b> <br>
 </div>
-<!-- Team Section -->
 
 
-<div id="bubblemap" style="position: relative; width: 90%; height: 1000px;"></div>
+<div style="float:left; position: relative; z-index:1; width: 10%; height: 5%;">
+<form>
+<b><output for=value id="outputyear">Year: 2010</output></b>
+<input type="range" id="yearvalue" value="2010" step="1" min="1924" max="2010" oninput="outputUpdateYear(value)">
+</form>
+</div>
+
+
+<div id="stars" style="float:left; position: relative; z-index:1; width: 10%; height: 5%;">
+<form>
+<b><output for=value id="outputstars">Stars: 3</output></b>
+<input type="range" id="starvalue" value="3" step="1" min="1" max="5" oninput="outputUpdateStars(value)">
+</form>
+</div>
+<div id="bubblemap" style="position: relative; width: 100%; height: 100%; z-index:0"></div>
+
+
+
 <script>
 var TheMap = new Datamap(
 {
     element: document.getElementById('bubblemap'),
     scope: 'world',
     geographyConfig: {popupOnHover: false, highlightOnHover: false},
-    fills: {defaultFill: '#A4A4A4'},
+    fills: {defaultFill: '#3499a9', bubble: '#eb6f5e'},
 });
-Draw(1996);
+Draw(globalyear, globalstars);
 
-
-
+var x = document.getElementById("yearvalue");
+x.value = 2010;
+var y = document.getElementById("starvalue");
+y.value = 3;
 </script>
-
-<form>
-Year: 
-  <output for=value id="outputyear">1980</output>
-  <input type="range" id="value" value="1980" step="1" min="1980" max="2000" oninput="outputUpdateYear(value)">
-
-</form>
-
-
-<form>
-Stars: 
-  <output for=value id="outputstars">1</output>
-  <input type="range" id="value" value="1" step="1" min="1" max="5" oninput="outputUpdateStars(value)">
-
-</form>
 
 
 <script type="text/javascript" src="js/jquery.1.11.1.js"></script> 
@@ -514,5 +309,6 @@ Stars:
 <script type="text/javascript" src="js/jqBootstrapValidation.js"></script> 
 <script type="text/javascript" src="js/contact_me.js"></script> 
 <script type="text/javascript" src="js/main.js"></script>
+
 </body>
 </html>
